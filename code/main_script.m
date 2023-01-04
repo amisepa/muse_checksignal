@@ -3,7 +3,6 @@
 % 
 % Cedric Cannard, January 2023
 
-
 clear; close all; clc
 mainDir = 'G:\Shared drives\Science\IDL\6. ANALYSES\cedric\muse_checksignal';
 load(fullfile(mainDir, 'code', 'maar_sInfo.mat'))
@@ -19,13 +18,12 @@ sessions = extractBetween(filenames,'ses-0','_task','Boundaries','exclusive');
 
 sum(contains(ids, {sInfo.id}))
 
-
 %% Bad channels
 
 count1 = 1;
 count2 = 1;
 progressbar('Scanning files')
-for iFile = 1:10%length(sInfo)
+for iFile = 1:150%length(sInfo)
 
     disp('-------------------------------------------------------------------------------')
     fprintf('File %d \n', iFile)
@@ -86,6 +84,53 @@ for iFile = 1:10%length(sInfo)
     progressbar(iFile/10)
 
 end
+
+% figure('color','w');
+% subplot(2,1,1)
+% histogram(goodRMS); hold on; histogram(badRMS); title('RMS raw signal'); legend('good', 'bad')
+% subplot(2,1,1)
+% histogram(goodPower); hold on; histogram(badPower); title('RMS HF power'); legend('good', 'bad')
+
+% Plot histo and 95% CI
+binsize = 40;
+figure('color','w');
+subplot(2,1,1)  % RMS raw signal
+goodCI(1) = prctile(goodRMS, (100-95)/2);     
+goodCI(2) = prctile(goodRMS, 100-(100-95)/2);
+[y,x] = histcounts(goodRMS,binsize);    
+y = y./max(y); x = (x(1:end-1)+x(2:end))/2;
+bar(x,y,'facecolor','blue','EdgeColor', 'k'); hold on
+patch(goodCI([1 1 2 2]), [0 1 1 0],'blue', 'facealpha',.5,'edgecolor','none')
+plot([1 1]*mean(goodRMS), [0 1],'b--', 'linew',2, 'linewidth', 3)
+badCI(1) = prctile(badPower, (100-95)/2);     
+badCI(2) = prctile(badPower, 100-(100-95)/2);
+[y,x] = histcounts(badPower,binsize);    
+y = y./max(y); x = (x(1:end-1)+x(2:end))/2;
+bar(x,y,'facecolor','red','EdgeColor', 'k'); hold on
+patch(badCI([1 1 2 2]), [0 1 1 0],'red', 'facealpha',.5,'edgecolor','none')
+plot([1 1]*mean(badPower), [0 1],'r--', 'linew',2, 'linewidth', 3)
+legend('good (data)', 'good (95% CI)', 'good (mean)', 'bad (data)', 'bad (95% CI)', 'bad (mean)')
+title('RMS of raw signal ')
+
+subplot(2,1,2)  % RMS power
+goodCI(1) = prctile(goodPower, (100-95)/2);     
+goodCI(2) = prctile(goodPower, 100-(100-95)/2);
+[y,x] = histcounts(goodPower,binsize);    
+y = y./max(y); x = (x(1:end-1)+x(2:end))/2;
+bar(x,y,'facecolor','blue','EdgeColor', 'k'); hold on
+patch(goodCI([1 1 2 2]), [0 1 1 0],'blue', 'facealpha',.5,'edgecolor','none')
+plot([1 1]*mean(goodPower), [0 1],'b--', 'linew',2, 'linewidth', 3)
+badCI(1) = prctile(badRMS, (100-95)/2);     
+badCI(2) = prctile(badRMS, 100-(100-95)/2);
+[y,x] = histcounts(badRMS,binsize);    
+y = y./max(y); x = (x(1:end-1)+x(2:end))/2;
+bar(x,y,'facecolor','red','EdgeColor', 'k'); hold on
+patch(badCI([1 1 2 2]), [0 1 1 0],'red', 'facealpha',.5,'edgecolor','none')
+plot([1 1]*mean(badRMS), [0 1],'r--', 'linew',2, 'linewidth', 3)
+legend('good (data)', 'good (95% CI)', 'good (mean)', 'bad (data)', 'bad (95% CI)', 'bad (mean)')
+title('RMS of high-frequency power')
+% print(gcf, fullfile(outpath, 'ci-plot.png'),'-dpng','-r300');   % 300 dpi .png
+% print(gcf, fullfile(outpath, 'ci-plot.tiff'),'-dtiff','-r300');  % 300 dpi .tiff
 
 disp('Done')
 
