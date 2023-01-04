@@ -22,7 +22,7 @@ sum(contains(ids, {sInfo.id}))
 
 count1 = 1;
 count2 = 1;
-progressbar('Scanning files')
+% progressbar('Scanning files')
 for iFile = 1:150%length(sInfo)
 
     disp('-------------------------------------------------------------------------------')
@@ -31,14 +31,8 @@ for iFile = 1:150%length(sInfo)
     match = find(contains(ids, sInfo(iFile).id));
 
     if ~exist('match','var'), disp('No match found for this file.'); continue; end
-
     if str2double(sessions(match)) ~= sInfo(iFile).session
         error('sessions don''t match')
-    end
-    if length(match) > 1
-        disp('check sessions')
-        break
-        %CHECK SESSION
     end
 
     % Import data
@@ -53,7 +47,7 @@ for iFile = 1:150%length(sInfo)
     EEG = rm_DC(EEG); 
 %     pop_eegplot(EEG,1,1,1);
     
-    % index of bad/good channels
+    % Index of bad/good channels from manual tagging
     badChan = contains({EEG.chanlocs.labels}, sInfo(iFile).badChan_manual);
 
     % RMS
@@ -68,7 +62,12 @@ for iFile = 1:150%length(sInfo)
 
             % RMS on high-freq power
             badPower(count1,:) = rms(power);
-
+            
+            % Fuzzy entropy
+            t = tic;
+            badEntropy(count1,:) = compute_fe(EEG.data(iChan,:));
+            toc(t)
+            
             count1 = count1 + 1;
         else
             % RMS
@@ -77,13 +76,18 @@ for iFile = 1:150%length(sInfo)
             % RMS on high-freq power
             goodPower(count2,:) = rms(power);
 
+            % Fuzzy entropy
+            goodEntropy(count1,:) = compute_fe(EEG.data(iChan,:));
+
             count2 = count2 + 1;
         end
     end
 
-    progressbar(iFile/10)
+%     progressbar(iFile/150)
 
 end
+
+% REMOVE OUTLIERS FROM BOTH DATASETS TO BE MORE ACCURATE?
 
 % figure('color','w');
 % subplot(2,1,1)
@@ -94,7 +98,7 @@ end
 % Plot histo and 95% CI
 binsize = 40;
 figure('color','w');
-subplot(2,1,1)  % RMS raw signal
+subplot(3,1,1)  % RMS raw signal
 goodCI(1) = prctile(goodRMS, (100-95)/2);     
 goodCI(2) = prctile(goodRMS, 100-(100-95)/2);
 [y,x] = histcounts(goodRMS,binsize);    
@@ -112,7 +116,7 @@ plot([1 1]*mean(badPower), [0 1],'r--', 'linew',2, 'linewidth', 3)
 legend('good (data)', 'good (95% CI)', 'good (mean)', 'bad (data)', 'bad (95% CI)', 'bad (mean)')
 title('RMS of raw signal ')
 
-subplot(2,1,2)  % RMS power
+subplot(3,1,2)  % RMS power
 goodCI(1) = prctile(goodPower, (100-95)/2);     
 goodCI(2) = prctile(goodPower, 100-(100-95)/2);
 [y,x] = histcounts(goodPower,binsize);    
@@ -129,6 +133,26 @@ patch(badCI([1 1 2 2]), [0 1 1 0],'red', 'facealpha',.5,'edgecolor','none')
 plot([1 1]*mean(badRMS), [0 1],'r--', 'linew',2, 'linewidth', 3)
 legend('good (data)', 'good (95% CI)', 'good (mean)', 'bad (data)', 'bad (95% CI)', 'bad (mean)')
 title('RMS of high-frequency power')
+
+subplot(3,1,3)  % RMS power
+goodCI(1) = prctile(goodEntropy, (100-95)/2);     
+goodCI(2) = prctile(goodEntropy, 100-(100-95)/2);
+[y,x] = histcounts(goodEntropy,binsize);    
+y = y./max(y); x = (x(1:end-1)+x(2:end))/2;
+bar(x,y,'facecolor','blue','EdgeColor', 'k'); hold on
+patch(goodCI([1 1 2 2]), [0 1 1 0],'blue', 'facealpha',.5,'edgecolor','none')
+plot([1 1]*mean(goodEntropy), [0 1],'b--', 'linew',2, 'linewidth', 3)
+badCI(1) = prctile(badEntropy, (100-95)/2);     
+badCI(2) = prctile(badEntropy, 100-(100-95)/2);
+[y,x] = histcounts(badEntropy,binsize);    
+y = y./max(y); x = (x(1:end-1)+x(2:end))/2;
+bar(x,y,'facecolor','red','EdgeColor', 'k'); hold on
+patch(badCI([1 1 2 2]), [0 1 1 0],'red', 'facealpha',.5,'edgecolor','none')
+plot([1 1]*mean(badEntropy), [0 1],'r--', 'linew',2, 'linewidth', 3)
+legend('good (data)', 'good (95% CI)', 'good (mean)', 'bad (data)', 'bad (95% CI)', 'bad (mean)')
+title('Fuzzy entropy')
+
+
 % print(gcf, fullfile(outpath, 'ci-plot.png'),'-dpng','-r300');   % 300 dpi .png
 % print(gcf, fullfile(outpath, 'ci-plot.tiff'),'-dtiff','-r300');  % 300 dpi .tiff
 

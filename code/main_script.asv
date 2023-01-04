@@ -3,7 +3,6 @@
 % 
 % Cedric Cannard, January 2023
 
-
 clear; close all; clc
 mainDir = 'G:\Shared drives\Science\IDL\6. ANALYSES\cedric\muse_checksignal';
 load(fullfile(mainDir, 'code', 'maar_sInfo.mat'))
@@ -19,13 +18,12 @@ sessions = extractBetween(filenames,'ses-0','_task','Boundaries','exclusive');
 
 sum(contains(ids, {sInfo.id}))
 
-
 %% Bad channels
 
 count1 = 1;
 count2 = 1;
-progressbar('Scanning files')
-for iFile = 1:10%length(sInfo)
+% progressbar('Scanning files')
+for iFile = 1:150%length(sInfo)
 
     disp('-------------------------------------------------------------------------------')
     fprintf('File %d \n', iFile)
@@ -33,14 +31,8 @@ for iFile = 1:10%length(sInfo)
     match = find(contains(ids, sInfo(iFile).id));
 
     if ~exist('match','var'), disp('No match found for this file.'); continue; end
-
     if str2double(sessions(match)) ~= sInfo(iFile).session
         error('sessions don''t match')
-    end
-    if length(match) > 1
-        disp('check sessions')
-        break
-        %CHECK SESSION
     end
 
     % Import data
@@ -55,7 +47,7 @@ for iFile = 1:10%length(sInfo)
     EEG = rm_DC(EEG); 
 %     pop_eegplot(EEG,1,1,1);
     
-    % index of bad/good channels
+    % Index of bad/good channels from manual tagging
     badChan = contains({EEG.chanlocs.labels}, sInfo(iFile).badChan_manual);
 
     % RMS
@@ -70,7 +62,13 @@ for iFile = 1:10%length(sInfo)
 
             % RMS on high-freq power
             badPower(count1,:) = rms(power);
-
+            
+            % Approximate entropy
+            t = tic;
+            badEntropy(count1,:) = compute_ae(EEG.data(iChan,:),2,0.15*std(EEG.data(iChan,:)));
+            badEntropy(ichan,:) = compute_fe(EEG.data(iChan,:),m,r,n,tau);
+            toc(t)
+            
             count1 = count1 + 1;
         else
             % RMS
@@ -83,9 +81,11 @@ for iFile = 1:10%length(sInfo)
         end
     end
 
-    progressbar(iFile/10)
+%     progressbar(iFile/150)
 
 end
+
+% REMOVE OUTLIERS FROM BOTH DATASETS TO BE MORE ACCURATE?
 
 % figure('color','w');
 % subplot(2,1,1)
@@ -93,14 +93,10 @@ end
 % subplot(2,1,1)
 % histogram(goodPower); hold on; histogram(badPower); title('RMS HF power'); legend('good', 'bad')
 
-%%
-goodCI = [];
-badCI = [];
-
 % Plot histo and 95% CI
+binsize = 40;
 figure('color','w');
 subplot(2,1,1)  % RMS raw signal
-binsize = 30;
 goodCI(1) = prctile(goodRMS, (100-95)/2);     
 goodCI(2) = prctile(goodRMS, 100-(100-95)/2);
 [y,x] = histcounts(goodRMS,binsize);    
@@ -119,7 +115,6 @@ legend('good (data)', 'good (95% CI)', 'good (mean)', 'bad (data)', 'bad (95% CI
 title('RMS of raw signal ')
 
 subplot(2,1,2)  % RMS power
-binsize = 30;
 goodCI(1) = prctile(goodPower, (100-95)/2);     
 goodCI(2) = prctile(goodPower, 100-(100-95)/2);
 [y,x] = histcounts(goodPower,binsize);    
