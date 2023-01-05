@@ -1,0 +1,12 @@
+Good RMS quantiles: 6.94385      10.5552      13.5906 
+Bad RMS quantiles: 14.9688      31.1643      69.6171 
+===>>> A good threshold for tagging bad channels using RMS of raw signals was found! RMS = 15 
+Good kurtosis quantiles: 0            0      11.4386 
+Bad kurtosis quantiles: 6.97974      12.9875      28.1938 
+Good HF power quantiles: 8.09071      11.8407      14.5468 
+Bad HF power quantiles: 6.76676      9.19817      11.7537 
+Good LF power quantiles: 0      3.11416      13.5461 
+Bad LF power quantiles: 14.5471      21.4844      30.6908 
+===>>> A good threshold for tagging bad channels using RMS of low-frequency power was found! RMS = 14.5 
+Good entropy quantiles: 0      1.8817      2.7279 
+Bad entropy quantiles: 2.0508      2.6575      3.0329 
