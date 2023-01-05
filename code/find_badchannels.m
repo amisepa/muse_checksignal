@@ -1,11 +1,11 @@
-%% Test different features extraction and methods to assess signal quality 
-% automatically from Muse S data. Finds highest accuracy using true/false positive/negative rates.
+%% Test different features extraction and methods to detect bad channels
+% automatically from Muse data. Finds highest accuracy using true/false positive/negative rates.
 % 
 % Cedric Cannard, January 2023
 
 clear; close all; clc
 mainDir = 'G:\Shared drives\Science\IDL\6. ANALYSES\cedric\muse_checksignal';
-outDir = fullfile(mainDir, 'outputs');
+outDir = fullfile(mainDir, 'outputs', 'channels');
 load(fullfile(mainDir, 'code', 'maar_sInfo.mat'))
 
 % check if filenames correspond
@@ -186,7 +186,7 @@ title('Fuzzy entropy')
 print(gcf, fullfile(outDir, 'ci-plot.png'),'-dpng','-r300');   % 300 dpi .png
 % print(gcf, fullfile(outpath, 'ci-plot.tiff'),'-dtiff','-r300');  % 300 dpi .tiff
 
-%% Quantiles
+%% Find thresholds using quantiles
 
 % rms
 goodQ = quantile(goodRMS,3);
@@ -195,12 +195,28 @@ fprintf('Good RMS quantiles: %s \n', num2str(goodQ))
 fprintf('Bad RMS quantiles: %s \n', num2str(badQ))
 if goodQ(3) < badQ(1)
     threshRMS = badQ(1);
-    fprintf('A good threshold for tagging bad channels using RMS of raw signals was found: %g \n', round(threshRMS,1)
+    fprintf('===>>> A good threshold for tagging bad channels using RMS of raw signals was found! RMS = %g \n', round(threshRMS,1))
 end
-fprintf('Good power quantiles: %s \n', num2str(quantile(goodPower,3)))
-fprintf('Bad power quantiles: %s \n', num2str(quantile(badPower,3)))
-fprintf('Good entropy quantiles: %s \n', num2str(quantile(goodEntropy,3)))
-fprintf('Bad entropy quantiles: %s \n', num2str(quantile(badEntropy,3)))
+
+% High-freq power
+goodQ = quantile(goodPower,3);
+badQ = quantile(badPower,3);
+fprintf('Good power quantiles: %s \n', num2str(goodQ))
+fprintf('Bad power quantiles: %s \n', num2str(badQ))
+if goodQ(3) < badQ(1)
+    threshPower = badQ(1);
+    fprintf('===>>> A good threshold for tagging bad channels using RMS of high-frequency power was found! RMS = %g \n', round(threshPower,1))
+end
+
+% Fuzzy entropy
+goodQ = quantile(goodEntropy,3);
+badQ = quantile(badEntropy,3);
+fprintf('Good entropy quantiles: %s \n', num2str(goodQ))
+fprintf('Bad entropy quantiles: %s \n', num2str(badQ))
+if goodQ(3) < badQ(1)
+    threshEntropy = badQ(1);
+    fprintf('===>>> A good threshold for tagging bad channels using fuzzy entropy was found! Entropy = %g \n', round(threshEntropy,1))
+end
 
 
 %% find thresholds
