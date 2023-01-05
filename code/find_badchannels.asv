@@ -223,7 +223,7 @@ end
 
 load(fullfile(outDir,'badRMS'))
 badQ = quantile(badRMS,3);
-threshRMS = floor(badQ(1));
+threshRMS = badQ(1);
 
 true_positive = 0;
 true_negative = 0;
@@ -288,6 +288,7 @@ for iFile = 101:151%length(sInfo)
 end
 disp('Done')
 
+%%
 % True positive rate (sensitivity or hit rate)
 TPR = true_positive / (true_positive + false_negative);
 fprintf('True positive rate (sensitivity or hit rate): %g%% \n', round(TPR*100,1))
