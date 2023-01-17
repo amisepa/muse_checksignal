@@ -1,12 +1,21 @@
+Good mean quantiles: -1.5451e-16           0           0 
+Bad mean quantiles: -1.564e-15 -2.7205e-16  2.0996e-15 
+Good SD quantiles: 0      4.27673      13.5625 
+Bad SD quantiles: 14.969      31.1648      69.6179 
+===>>> A good threshold for tagging bad channels using SD of raw signals was found! value = 15 
 Good RMS quantiles: 6.94385      10.5552      13.5906 
 Bad RMS quantiles: 14.9688      31.1643      69.6171 
-===>>> A good threshold for tagging bad channels using RMS of raw signals was found! RMS = 15 
-Good kurtosis quantiles: 0            0      11.4386 
+===>>> A good threshold for tagging bad channels using RMS of raw signals was found! value = 15 
+Good peak2RMS quantiles: 6.41027       9.1609      11.8743 
+Bad peak2RMS quantiles: 6.75757       10.515      12.9519 
+Good kurtosis quantiles: 4.26432         6.87      21.6892 
 Bad kurtosis quantiles: 6.97974      12.9875      28.1938 
+Good skewness quantiles: -0.7536   -0.046703     0.24665 
+Bad skewness quantiles: -0.99244    -0.27676      0.0716 
 Good HF power quantiles: 8.09071      11.8407      14.5468 
 Bad HF power quantiles: 6.76676      9.19817      11.7537 
-Good LF power quantiles: 0      3.11416      13.5461 
+Good LF power quantiles: 5.74538      10.3665      14.0047 
 Bad LF power quantiles: 14.5471      21.4844      30.6908 
-===>>> A good threshold for tagging bad channels using RMS of low-frequency power was found! RMS = 14.5 
-Good entropy quantiles: 0      1.8817      2.7279 
+===>>> A good threshold for tagging bad channels using RMS of low-frequency power was found! value = 14.5 
+Good entropy quantiles: 2.0994      2.5054      2.8321 
 Bad entropy quantiles: 2.0508      2.6575      3.0329 

@@ -1,0 +1,6 @@
+True positive rate (sensitivity or hit rate): 3.8 
+True negative rate (specificity or selectivity): 100 
+Positive predictive value (precision): 100 
+False negative rate (miss rate): 96.2 
+False discovery rate: 0 
+Accuracy: 72
