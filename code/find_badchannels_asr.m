@@ -4,7 +4,7 @@
 % Cedric Cannard, January 2023
 
 clear; close all; clc
-mainDir = 'G:\Shared drives\Science\IDL\6. ANALYSES\cedric\muse_checksignal';
+mainDir = 'C:\Users\Cedric\Documents\MATLAB\muse_checksignal';
 outDir = fullfile(mainDir, 'outputs', 'channels');
 % load(fullfile(mainDir, 'code', 'sInfo.mat'))
 load(fullfile(mainDir, 'code', 'maar_sInfo.mat'))
@@ -22,15 +22,14 @@ fprintf( '%g matches found. \n', sum(contains(ids, {sInfo.id})) )
 
 % Parameters
 nFiles = length(sInfo);
-max_flat_time = 0.5;        % channel is 33% flat
-maxJitter = 20;             % max jitter tolerated during flatlines (as a multiple of epsilon; default = 20)
-max_broken_time = 0.5;      % channel is 50% broken max
-window_len = 5;             % window length (in s, default = 2)
+max_flat_time = 0.33;       % 0.33 means rejects channels if a third of the channel is flat
+maxJitter = 15;             % max jitter tolerated during flatlines (as a multiple of epsilon; default = 20)
+window_len = 3;             % window length (in s, default = 2)
 ignored_quantile = 0.1;     % 0.05 - 0.2
-linenoise_aware = 1;        % corr measure is affected by line noise (0) or not (1, default)
-min_corr = .85;             % minimum correlation between channels (default = .85)
-max_var = 40;               % ASR variance threshold (2-120)
-max_bad_data = .45;         % max amount of data rejected by ASR to consider bad file
+linenoise_aware = 0;        % corr measure is affected by line noise (0) or not (1, default)
+min_corr = .9;              % minimum correlation between channels (default = .85)
+max_var = 15;               % ASR variance threshold (2-120)
+max_bad_data = .5;          % max amount of data rejected by ASR to consider bad file
 
 true_positive = 0;
 false_negative = 0;
@@ -93,50 +92,53 @@ for iFile = 1:nFiles
     offsets = 1:winlen:datasize-winlen;
     W = length(offsets);
     retained = 1:(nchans-ceil(nchans*ignored_quantile));
-    clear X
-    if linenoise_aware % ignore both 50 and 60 Hz spectral components
-        Bwnd = design_kaiser(2*45/EEG.srate,2*50/EEG.srate,60,true);
-        if EEG.srate <= 130
-            B = design_fir(length(Bwnd)-1,[2*[0 45 50 55]/EEG.srate 1],[1 1 0 1 1],[],Bwnd);
-        else
-            B = design_fir(length(Bwnd)-1,[2*[0 45 50 55 60 65]/EEG.srate 1],[1 1 0 1 0 1 1],[],Bwnd);
-        end
-        for iChan = EEG.nbchan:-1:1
-            X(:,iChan) = filtfilt_fast(B,1,EEG.data(iChan,:)');
-        end
-    else
-        X = EEG.data';
-    end
+%     clear X
+%     if linenoise_aware % ignore both 50 and 60 Hz spectral components
+%         Bwnd = design_kaiser(2*45/EEG.srate,2*50/EEG.srate,60,true);
+%         if EEG.srate <= 130
+%             B = design_fir(length(Bwnd)-1,[2*[0 45 50 55]/EEG.srate 1],[1 1 0 1 1],[],Bwnd);
+%         else
+%             B = design_fir(length(Bwnd)-1,[2*[0 45 50 55 60 65]/EEG.srate 1],[1 1 0 1 0 1 1],[],Bwnd);
+%         end
+%         for iChan = EEG.nbchan:-1:1
+%             X(:,iChan) = filtfilt_fast(B,1,EEG.data(iChan,:)');
+%         end
+%     else
+%         X = EEG.data';
+%     end
     % For each window, flag channels with too low correlation to any other
     % channel (outside the ignored quantile threshold)
+    signal = EEG.data';
     flagged = zeros(nchans,W);
     for o = 1:W
-        sortcc = sort(abs(corrcoef(X(offsets(o)+wnd,:))));
+        sortcc = sort(abs(corrcoef(signal(offsets(o)+wnd,:))));
         flagged(:,o) = all(sortcc(retained,:) < min_corr);
     end
     % Mark all channels for removal which have more flagged samples than the
     % maximum number of ignored samples
-    badchans = sum(flagged,2)*window_len > size(EEG.data,2)*max_broken_time;
+    badchans = sum(flagged,2)*window_len > size(EEG.data,2)*max_bad_data;
     for iChan = 1:EEG.nbchan
         if badChanAuto(iChan) == 0 && badchans(iChan) == 1
             badChanAuto(iChan) = true;
         end
     end
+%     EEG = pop_select(EEG, 'nochannel', {EEG.chanlocs(badChanAuto).labels});
 
-    % ASR
-    reconstruct = false;
-    useriemannian = false;
-    m = memory;
-    maxmem = round(.85 * (m.MemAvailableAllArrays/1000000),1);  % use half of available memory in MB
-%     disp(['Using 85% of available memory (' num2str(round(maxmem/1000,1)) ' GB)'])
-    cleanEEG = clean_asr(EEG,max_var,[],[],[],[],[],[],[],useriemannian,maxmem);
-    mask = sum(abs(EEG.data-cleanEEG.data),1) > 1e-10;
-    badData = get_badSegments(mask, .1*EEG.srate);
-    rmData = (sum(badData(:,2) - badData(:,1))/EEG.srate) / EEG.xmax;  % bad data ratio
-    if rmData > max_bad_data
-        badChanAuto(1:EEG.nbchan) = true;
-    end
-    
+%     % ASR
+%     reconstruct = false;
+%     useriemannian = false;
+%     m = memory;
+%     maxmem = round(.85 * (m.MemAvailableAllArrays/1000000),1);  % use half of available memory in MB
+% %     disp(['Using 85% of available memory (' num2str(round(maxmem/1000,1)) ' GB)'])
+%     cleanEEG = clean_asr(EEG,max_var,[],[],[],[],[],[],[],useriemannian,maxmem);
+%     mask = sum(abs(EEG.data-cleanEEG.data),1) > 1e-10;
+%     badData = get_badSegments(mask, .1*EEG.srate);
+%     rmData = (sum(badData(:,2) - badData(:,1))/EEG.srate) / EEG.xmax;  % bad data ratio
+%     if rmData > max_bad_data
+%         badChanAuto(1:EEG.nbchan) = true;
+%     end
+% %     vis_artifacts(cleanEEG,EEG);
+
     % Confusion matrix
     for iChan = 1:EEG.nbchan
         if badChanMan(iChan) == 1 && badChanAuto(iChan) == 1

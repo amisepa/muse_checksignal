@@ -5,7 +5,7 @@
 % Cedric Cannard, January 2023
 
 clear; close all; clc
-mainDir = 'G:\Shared drives\Science\IDL\6. ANALYSES\cedric\muse_checksignal';
+mainDir = 'C:\Users\Cedric\Documents\MATLAB\muse_checksignal';
 outDir = fullfile(mainDir, 'outputs');
 load(fullfile(mainDir, 'code', 'maar_sInfo.mat'))
 % load(fullfile(mainDir, 'code', 'sInfo.mat'))
@@ -39,23 +39,11 @@ for iFile = 1:nFiles
     % tmpsession = extractAfter(sInfo(iFile).filename, 'ses-0');
     % tmpsession = extractBefore(tmpsession, '_task');
     % sInfo(iFile).session = str2double(tmpsession);
-    if length(str2double(sessions(match))) > 1 
+%     if length(str2double(sessions(match))) > 1 
+    if length(match) > 1
         disp('Several session for this subject, finding matching session.')
         match = match(str2double(sessions(match)) == sInfo(iFile).session);
     end
-
-    % Import data
-    try
-        EEG = import_muse(fullfile(dataDir, filenames{match}),'eeg');
-    catch
-        warning('Bad sample rate, skipping file!')
-    end
-
-    if sum(isnan(EEG.data(:,1))) > 0, warning('This file contains NaNs, skipping it.'); continue; end
-
-    % Remove DC component
-    % EEG = rm_DC(EEG);
-    % pop_eegplot(EEG,1,1,1);
 
     % Index of bad/good channels from manual tagging
     if islogical(sInfo(iFile).badChan_manual)
@@ -64,13 +52,35 @@ for iFile = 1:nFiles
         badChanMan = contains({EEG.chanlocs.labels}, sInfo(iFile).badChan_manual);
     end
 
+    % Import data
+    if sum(badChanMan) == 4, fprintf('all channels are bad, skipping file. \n'); continue; end
+    try
+        EEG = import_muse(fullfile(dataDir, filenames{match}),'eeg');
+    catch
+        warning('Bad sample rate, skipping file!')
+    end
+%     if sum(isnan(EEG.data(:,1))) > 0, warning('This file contains NaNs, skipping it.'); continue; end
+    EEG = pop_select(EEG, 'nochannel',{EEG.chanlocs(badChanMan).labels});
+    EEG = pop_eegfiltnew(EEG,'hicutoff',30);
+    badData = sInfo(iFile).badData_manual;
+    if ~isempty(badData)
+%         goodEEG = eeg_eegrej(EEG, badData);
+        goodEEG = pop_select(EEG, 'nopoint', badData);
+        badEEG = pop_select(EEG, 'point', badData);
+%         pop_eegplot(goodEEG,1,1,1);
+%         pop_eegplot(badEEG,1,1,1);
+    else
+        fprintf('No bad data for this file, skipping it. \n')
+        continue
+    end
+
     % Extract features: RMS raw signal, RMS high-freq power, and fuzzy entropy
     % and allocate them to either good channels or bad channely using the
     % badChan index (i.e., manual tagging)
     disp('Extracting channel features...')
     for iChan = 1:EEG.nbchan
 
-        % estimate power spectra of interest
+        % Estimate power spectra of interest
         powerHF = get_psd(EEG.data(iChan,:),EEG.srate,'hamming',50,[],EEG.srate,[70 100],'psd');
         powerLF = get_psd(EEG.data(iChan,:),EEG.srate,'hamming',50,[],EEG.srate,[0.01 3],'psd');
 
