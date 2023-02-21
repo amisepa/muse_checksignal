@@ -1,0 +1,17 @@
+------------------- FRONTAL ------------------- 
+thresh_lf = 8.5 
+True positive rate (sensitivity or hit rate): 96.6 
+True negative rate (specificity or selectivity): 97 
+Positive predictive value (precision): 97.1 
+False negative rate (miss rate): 3.4 
+False discovery rate: 2.9 
+Accuracy: 96.8 
+ 
+------------------- POSTERIOR ------------------- 
+thresh_lf = 14.6 
+True positive rate (sensitivity or hit rate): 88.4 
+True negative rate (specificity or selectivity): 83.5 
+Positive predictive value (precision): 82.4 
+False negative rate (miss rate): 11.6 
+False discovery rate: 17.6 
+Accuracy: 85.8 

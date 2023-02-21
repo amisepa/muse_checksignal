@@ -15,6 +15,7 @@ filenames(~contains(filenames,'csv'),:) = [];
 ids = extractBetween(filenames,'sub-','_ses','Boundaries','exclusive');
 sessions = extractBetween(filenames,'ses-0','_task','Boundaries','exclusive');
 
+% Initialize these only 1st time
 % front_good = [];
 % front_bad = [];
 % post_good = [];
@@ -24,6 +25,20 @@ load(fullfile(outDir, "front_good.mat"));
 load(fullfile(outDir, "front_bad.mat"));
 load(fullfile(outDir, "post_good.mat"));
 load(fullfile(outDir, "post_bad.mat"));
+
+figure; 
+subplot(2,2,1)
+plot(front_good); hold on; plot(front_bad); 
+legend('front good', 'front bad'); title('Raw signal')
+subplot(2,2,2)
+histogram(front_good); hold on; histogram(front_bad); xlim([-150 150])
+legend('front good', 'front bad'); title('Distribution of raw signal')
+subplot(2,2,3)
+plot(post_good); hold on; plot(post_bad); 
+legend('posterior good', 'posterior bad'); title('Raw signal')
+subplot(2,2,4)
+histogram(post_good); hold on; histogram(post_bad); xlim([-150 150])
+legend('posterior good', 'posterior bad'); title('Distribution of raw signal')
 
 % for eegplot
 mycommand = '[tmpgood, com] = eeg_eegrej(EEG,eegplot2event(TMPREJ,-1));';
@@ -120,5 +135,8 @@ if imported
     save(fullfile(outDir, 'post_bad.mat'),'post_bad');
 end
 
-disp('Done with this file. Press CTRL + ENTER to launch the next one.')
+disp('Done with this file.')
+nans = cell2mat(cellfun(@(x) any(isnan(x)), {sInfo.channel1_badData}, 'UniformOutput',false));
+fprintf('%g files completed. \n', length(sInfo)-sum(nans))
+disp('Press CTRL + ENTER to launch the next one.')
 
