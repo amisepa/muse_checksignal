@@ -323,9 +323,6 @@ for iSeg = 1:nSeg-1
     end
     tSeg = tStart:tEnd;  % time index in samples for this segment
     
-%     if usegpu && length(tSeg) > 1000
-%     try X = gpuArray(X); catch,end; end
-
     % ------------- FRONTAL ------------- %
     % LF
     if contains(feat, 'LF')
