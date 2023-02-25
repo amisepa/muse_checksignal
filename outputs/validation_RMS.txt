@@ -1,0 +1,17 @@
+------------------- FRONTAL ------------------- 
+thresh_rms = 9.3 
+True positive rate (sensitivity or hit rate): 95 
+True negative rate (specificity or selectivity): 92.8 
+Positive predictive value (precision): 92.6 
+False negative rate (miss rate): 5 
+False discovery rate: 7.4 
+Accuracy: 93.9 
+ 
+------------------- POSTERIOR ------------------- 
+thresh_rms = 12.5 
+True positive rate (sensitivity or hit rate): 75.2 
+True negative rate (specificity or selectivity): 93.3 
+Positive predictive value (precision): 95.1 
+False negative rate (miss rate): 24.8 
+False discovery rate: 4.9 
+Accuracy: 81.9 

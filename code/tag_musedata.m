@@ -1,4 +1,4 @@
-%% Tag good/bad EEG data from Muse files manually to then automatically
+%% Tag good/bad EEG data from Muse 2016 files manually to then automatically
 % classify new files.
 %
 % Cedric Cannard, Feb, 2022
@@ -6,7 +6,7 @@ clear; close all; clc
 eeglab; close;
 
 dataDir = 'G:\Shared drives\Science\IDL\5. DATA\muse\eeg\data_raw';
-outDir = 'G:\Shared drives\Science\IDL\5. DATA\muse\eeg\tagged_data';
+outDir = 'G:\Shared drives\Science\IDL\5. DATA\muse\eeg\tagged_data\muse_2016';
 
 cd(dataDir)
 filenames = dir;

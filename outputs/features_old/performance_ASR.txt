@@ -1,6 +1,0 @@
-True positive rate (sensitivity or hit rate): 0 
-True negative rate (specificity or selectivity): 100 
-Positive predictive value (precision): NaN 
-False negative rate (miss rate): 100 
-False discovery rate: NaN 
-Accuracy: 89.2

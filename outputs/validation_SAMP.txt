@@ -1,0 +1,17 @@
+------------------- FRONTAL ------------------- 
+thresh_samp = 1.31 
+True positive rate (sensitivity or hit rate): 97.9 
+True negative rate (specificity or selectivity): 90.9 
+Positive predictive value (precision): 90.2 
+False negative rate (miss rate): 2.1 
+False discovery rate: 9.8 
+Accuracy: 94.1 
+ 
+------------------- POSTERIOR ------------------- 
+thresh_samp = 1.45 
+True positive rate (sensitivity or hit rate): 73.2 
+True negative rate (specificity or selectivity): 71.9 
+Positive predictive value (precision): 71.1 
+False negative rate (miss rate): 26.8 
+False discovery rate: 28.9 
+Accuracy: 72.5 

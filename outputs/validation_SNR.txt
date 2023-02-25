@@ -1,0 +1,17 @@
+------------------- FRONTAL ------------------- 
+thresh_snr = 3 
+True positive rate (sensitivity or hit rate): 100 
+True negative rate (specificity or selectivity): 67.1 
+Positive predictive value (precision): 51 
+False negative rate (miss rate): 0 
+False discovery rate: 49 
+Accuracy: 75.5 
+ 
+------------------- POSTERIOR ------------------- 
+thresh_snr = 4.5 
+True positive rate (sensitivity or hit rate): 100 
+True negative rate (specificity or selectivity): 64.8 
+Positive predictive value (precision): 45.6 
+False negative rate (miss rate): 0 
+False discovery rate: 54.4 
+Accuracy: 72.8 
