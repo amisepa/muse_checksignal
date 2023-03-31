@@ -4,19 +4,20 @@
 % Cedric Cannard, Feb 2023
 
 clear; close all; clc
-mainDir = 'C:\Users\Tracy\Documents\MATLAB\muse_checksignal';
-dataDir = 'G:\Shared drives\Science\IDL\5. DATA\muse\eeg\labeled_data\muse_2016';
-outDir = fullfile(mainDir, 'outputs', 'muse_2016');
+mainPath = 'C:\Users\Tracy\Documents\MATLAB\muse_checksignal';
+% dataDir = 'G:\Shared drives\Science\IDL\5. DATA\muse\eeg\labeled_data\muse_2016';
+dataPath = 'G:\Shared drives\Science\IDL\5. DATA\muse\eeg\labeled_data\muse_s';
 
 minfreq = 0.2;          % minimum frequency for LF power
 segSize = 1/minfreq     % in s (t = 1/f)
 fs = 256;               % sample rate
 
 % Load data
-load(fullfile(dataDir, 'front_good.mat'));
-load(fullfile(dataDir, 'front_bad.mat'));
-load(fullfile(dataDir, 'post_good.mat'));
-load(fullfile(dataDir, 'post_bad.mat'));
+% load(fullfile(dataPath, 'front_good.mat'));
+% load(fullfile(dataPath, 'front_bad.mat'));
+% load(fullfile(dataPath, 'post_good.mat'));
+% load(fullfile(dataPath, 'post_bad.mat'));
+load(fullfile(dataPath, 'labeled_data_merged.mat'));
 
 % Remove NaNs
 front_good(isnan(front_good)) = [];
@@ -251,42 +252,42 @@ outliers = isoutlier(post_bad_FUZ,'gesd');
 fprintf('Adjusting %g outliers. \n', sum(outliers));
 post_bad_FUZ(outliers) = mean(post_bad_FUZ);
 
-save(fullfile(outDir, 'front_good_RMS'), 'front_good_RMS')
-save(fullfile(outDir, 'front_bad_RMS'), 'front_bad_RMS')
-save(fullfile(outDir, 'front_good_peak2RMS'), 'front_good_peak2RMS')
-save(fullfile(outDir, 'front_bad_peak2RMS'), 'front_bad_peak2RMS')
-save(fullfile(outDir, 'front_good_SKEW'), 'front_good_SKEW')
-save(fullfile(outDir, 'front_bad_SKEW'), 'front_bad_SKEW')
-save(fullfile(outDir, 'front_good_HF'), 'front_good_HF')
-save(fullfile(outDir, 'front_bad_HF'), 'front_bad_HF')
-save(fullfile(outDir, 'front_good_LF'), 'front_good_LF')
-save(fullfile(outDir, 'front_bad_LF'), 'front_bad_LF')
-save(fullfile(outDir, 'front_good_SNR'), 'front_good_SNR')
-save(fullfile(outDir, 'front_bad_SNR'), 'front_bad_SNR')
-save(fullfile(outDir, 'front_good_SAMP'), 'front_good_SAMP')
-save(fullfile(outDir, 'front_bad_SAMP'), 'front_bad_SAMP')
-save(fullfile(outDir, 'front_good_APP'), 'front_good_APP')
-save(fullfile(outDir, 'front_bad_APP'), 'front_bad_APP')
-save(fullfile(outDir, 'front_good_FUZ'), 'front_good_FUZ')
-save(fullfile(outDir, 'front_bad_FUZ'), 'front_bad_FUZ')
-save(fullfile(outDir, 'post_good_RMS'), 'post_good_RMS')
-save(fullfile(outDir, 'post_bad_RMS'), 'post_bad_RMS')
-save(fullfile(outDir, 'post_good_peak2RMS'), 'post_good_peak2RMS')
-save(fullfile(outDir, 'post_bad_peak2RMS'), 'post_bad_peak2RMS')
-save(fullfile(outDir, 'post_good_SKEW'), 'post_good_SKEW')
-save(fullfile(outDir, 'post_bad_SKEW'), 'post_bad_SKEW')
-save(fullfile(outDir, 'post_good_HF'), 'post_good_HF')
-save(fullfile(outDir, 'post_bad_HF'), 'post_bad_HF')
-save(fullfile(outDir, 'post_good_LF'), 'post_good_LF')
-save(fullfile(outDir, 'post_bad_LF'), 'post_bad_LF')
-save(fullfile(outDir, 'post_good_SNR'), 'post_good_SNR')
-save(fullfile(outDir, 'post_bad_SNR'), 'post_bad_SNR')
-save(fullfile(outDir, 'post_good_SAMP'), 'post_good_SAMP')
-save(fullfile(outDir, 'post_bad_SAMP'), 'post_bad_SAMP')
-save(fullfile(outDir, 'post_good_APP'), 'post_good_APP')
-save(fullfile(outDir, 'post_bad_APP'), 'post_bad_APP')
-save(fullfile(outDir, 'post_good_FUZ'), 'post_good_FUZ')
-save(fullfile(outDir, 'post_bad_FUZ'), 'post_bad_FUZ')
+save(fullfile(dataPath, 'front_good_RMS'), 'front_good_RMS')
+save(fullfile(dataPath, 'front_bad_RMS'), 'front_bad_RMS')
+save(fullfile(dataPath, 'front_good_peak2RMS'), 'front_good_peak2RMS')
+save(fullfile(dataPath, 'front_bad_peak2RMS'), 'front_bad_peak2RMS')
+save(fullfile(dataPath, 'front_good_SKEW'), 'front_good_SKEW')
+save(fullfile(dataPath, 'front_bad_SKEW'), 'front_bad_SKEW')
+save(fullfile(dataPath, 'front_good_HF'), 'front_good_HF')
+save(fullfile(dataPath, 'front_bad_HF'), 'front_bad_HF')
+save(fullfile(dataPath, 'front_good_LF'), 'front_good_LF')
+save(fullfile(dataPath, 'front_bad_LF'), 'front_bad_LF')
+save(fullfile(dataPath, 'front_good_SNR'), 'front_good_SNR')
+save(fullfile(dataPath, 'front_bad_SNR'), 'front_bad_SNR')
+save(fullfile(dataPath, 'front_good_SAMP'), 'front_good_SAMP')
+save(fullfile(dataPath, 'front_bad_SAMP'), 'front_bad_SAMP')
+save(fullfile(dataPath, 'front_good_APP'), 'front_good_APP')
+save(fullfile(dataPath, 'front_bad_APP'), 'front_bad_APP')
+save(fullfile(dataPath, 'front_good_FUZ'), 'front_good_FUZ')
+save(fullfile(dataPath, 'front_bad_FUZ'), 'front_bad_FUZ')
+save(fullfile(dataPath, 'post_good_RMS'), 'post_good_RMS')
+save(fullfile(dataPath, 'post_bad_RMS'), 'post_bad_RMS')
+save(fullfile(dataPath, 'post_good_peak2RMS'), 'post_good_peak2RMS')
+save(fullfile(dataPath, 'post_bad_peak2RMS'), 'post_bad_peak2RMS')
+save(fullfile(dataPath, 'post_good_SKEW'), 'post_good_SKEW')
+save(fullfile(dataPath, 'post_bad_SKEW'), 'post_bad_SKEW')
+save(fullfile(dataPath, 'post_good_HF'), 'post_good_HF')
+save(fullfile(dataPath, 'post_bad_HF'), 'post_bad_HF')
+save(fullfile(dataPath, 'post_good_LF'), 'post_good_LF')
+save(fullfile(dataPath, 'post_bad_LF'), 'post_bad_LF')
+save(fullfile(dataPath, 'post_good_SNR'), 'post_good_SNR')
+save(fullfile(dataPath, 'post_bad_SNR'), 'post_bad_SNR')
+save(fullfile(dataPath, 'post_good_SAMP'), 'post_good_SAMP')
+save(fullfile(dataPath, 'post_bad_SAMP'), 'post_bad_SAMP')
+save(fullfile(dataPath, 'post_good_APP'), 'post_good_APP')
+save(fullfile(dataPath, 'post_bad_APP'), 'post_bad_APP')
+save(fullfile(dataPath, 'post_good_FUZ'), 'post_good_FUZ')
+save(fullfile(dataPath, 'post_bad_FUZ'), 'post_bad_FUZ')
 
 % Histograms
 figure('color','w');
@@ -308,7 +309,7 @@ subplot(3,3,8)
 histogram(front_good_APP); hold on; histogram(front_bad_APP); title('Approximate entropy');
 subplot(3,3,9)
 histogram(front_good_FUZ); hold on; histogram(front_bad_FUZ); title('Fuzzy entropy');
-print(gcf, fullfile(outDir, 'histo_frontal.png'),'-dpng','-r300');   % 300 dpi .png
+print(gcf, fullfile(dataPath, 'histo_frontal.png'),'-dpng','-r300');   % 300 dpi .png
 
 figure('color','w');
 subplot(3,3,1)
@@ -329,4 +330,4 @@ subplot(3,3,8)
 histogram(post_good_APP); hold on; histogram(post_bad_APP); title('Approximate entropy');
 subplot(3,3,9)
 histogram(post_good_FUZ); hold on; histogram(post_bad_FUZ); title('Fuzzy entropy');
-print(gcf, fullfile(outDir, 'histo_posterior.png'),'-dpng','-r300');   % 300 dpi .png
+print(gcf, fullfile(dataPath, 'histo_posterior.png'),'-dpng','-r300');   % 300 dpi .png

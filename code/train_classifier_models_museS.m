@@ -1,5 +1,5 @@
-%% Find best predictors from extracte features using Train Bagged Ensemble 
-% of regression trees (random forst). Then, using Matlab's Classification 
+%% Find best predictors from extracted features using Random forest (or use
+% PCA dimension reduction instead). Then, using Matlab's Classification 
 % Learner, train various classifiers (e.g. discriminant analysis, 
 % decision trees, naive Bayes, KNN, logistic regression, SVM, ensemble 
 % classifiers, neural network classifiers) and export the best as a compact 
@@ -17,74 +17,88 @@
 % Cedric Cannard, Feb 2022
 
 clear; close all; clc
-mainDir = 'C:\Users\Tracy\Documents\MATLAB\muse_checksignal';
-outDir = fullfile(mainDir, 'outputs', 'muse_2016');
+dataPath = 'G:\Shared drives\Science\IDL\5. DATA\muse\eeg\labeled_data\muse_s';
+outPath = 'C:\Users\Tracy\Documents\MATLAB\muse_checksignal\outputs\muse_s';
+cd(dataPath)
+% features_front = readtable(fullfile(dataPath, 'features_front.csv'));
+% features_post = readtable(fullfile(dataPath, 'features_post.csv'));
+warning off 
 
-load(fullfile(outDir, 'front_good_RMS'), 'front_good_RMS')
-load(fullfile(outDir, 'front_bad_RMS'), 'front_bad_RMS')
-load(fullfile(outDir, 'front_good_peak2RMS'), 'front_good_peak2RMS')
-load(fullfile(outDir, 'front_bad_peak2RMS'), 'front_bad_peak2RMS')
-load(fullfile(outDir, 'front_good_SKEW'), 'front_good_SKEW')
-load(fullfile(outDir, 'front_bad_SKEW'), 'front_bad_SKEW')
-load(fullfile(outDir, 'front_good_HF'), 'front_good_HF')
-load(fullfile(outDir, 'front_bad_HF'), 'front_bad_HF')
-load(fullfile(outDir, 'front_good_LF'), 'front_good_LF')
-load(fullfile(outDir, 'front_bad_LF'), 'front_bad_LF')
-load(fullfile(outDir, 'front_good_SNR'), 'front_good_SNR')
-load(fullfile(outDir, 'front_bad_SNR'), 'front_bad_SNR')
-load(fullfile(outDir, 'front_good_SAMP'), 'front_good_SAMP')
-load(fullfile(outDir, 'front_bad_SAMP'), 'front_bad_SAMP')
-load(fullfile(outDir, 'front_good_APP'), 'front_good_APP')
-load(fullfile(outDir, 'front_bad_APP'), 'front_bad_APP')
-load(fullfile(outDir, 'front_good_FUZ'), 'front_good_FUZ')
-load(fullfile(outDir, 'front_bad_FUZ'), 'front_bad_FUZ')
-load(fullfile(outDir, 'post_good_RMS'), 'post_good_RMS')
-load(fullfile(outDir, 'post_bad_RMS'), 'post_bad_RMS')
-load(fullfile(outDir, 'post_good_peak2RMS'), 'post_good_peak2RMS')
-load(fullfile(outDir, 'post_bad_peak2RMS'), 'post_bad_peak2RMS')
-load(fullfile(outDir, 'post_good_SKEW'), 'post_good_SKEW')
-load(fullfile(outDir, 'post_bad_SKEW'), 'post_bad_SKEW')
-load(fullfile(outDir, 'post_good_HF'), 'post_good_HF')
-load(fullfile(outDir, 'post_bad_HF'), 'post_bad_HF')
-load(fullfile(outDir, 'post_good_LF'), 'post_good_LF')
-load(fullfile(outDir, 'post_bad_LF'), 'post_bad_LF')
-load(fullfile(outDir, 'post_good_SNR'), 'post_good_SNR')
-load(fullfile(outDir, 'post_bad_SNR'), 'post_bad_SNR')
-load(fullfile(outDir, 'post_good_SAMP'), 'post_good_SAMP')
-load(fullfile(outDir, 'post_bad_SAMP'), 'post_bad_SAMP')
-load(fullfile(outDir, 'post_good_APP'), 'post_good_APP')
-load(fullfile(outDir, 'post_bad_APP'), 'post_bad_APP')
-load(fullfile(outDir, 'post_good_FUZ'), 'post_good_FUZ')
-load(fullfile(outDir, 'post_bad_FUZ'), 'post_bad_FUZ')
+load(fullfile(dataPath, 'front_good_RMS'), 'front_good_RMS')
+load(fullfile(dataPath, 'front_bad_RMS'), 'front_bad_RMS')
+load(fullfile(dataPath, 'front_good_peak2RMS'), 'front_good_peak2RMS')
+load(fullfile(dataPath, 'front_bad_peak2RMS'), 'front_bad_peak2RMS')
+load(fullfile(dataPath, 'front_good_SKEW'), 'front_good_SKEW')
+load(fullfile(dataPath, 'front_bad_SKEW'), 'front_bad_SKEW')
+load(fullfile(dataPath, 'front_good_HF'), 'front_good_HF')
+load(fullfile(dataPath, 'front_bad_HF'), 'front_bad_HF')
+load(fullfile(dataPath, 'front_good_LF'), 'front_good_LF')
+load(fullfile(dataPath, 'front_bad_LF'), 'front_bad_LF')
+load(fullfile(dataPath, 'front_good_SNR'), 'front_good_SNR')
+load(fullfile(dataPath, 'front_bad_SNR'), 'front_bad_SNR')
+load(fullfile(dataPath, 'front_good_SAMP'), 'front_good_SAMP')
+load(fullfile(dataPath, 'front_bad_SAMP'), 'front_bad_SAMP')
+load(fullfile(dataPath, 'front_good_APP'), 'front_good_APP')
+load(fullfile(dataPath, 'front_bad_APP'), 'front_bad_APP')
+load(fullfile(dataPath, 'front_good_FUZ'), 'front_good_FUZ')
+load(fullfile(dataPath, 'front_bad_FUZ'), 'front_bad_FUZ')
+load(fullfile(dataPath, 'post_good_RMS'), 'post_good_RMS')
+load(fullfile(dataPath, 'post_bad_RMS'), 'post_bad_RMS')
+load(fullfile(dataPath, 'post_good_peak2RMS'), 'post_good_peak2RMS')
+load(fullfile(dataPath, 'post_bad_peak2RMS'), 'post_bad_peak2RMS')
+load(fullfile(dataPath, 'post_good_SKEW'), 'post_good_SKEW')
+load(fullfile(dataPath, 'post_bad_SKEW'), 'post_bad_SKEW')
+load(fullfile(dataPath, 'post_good_HF'), 'post_good_HF')
+load(fullfile(dataPath, 'post_bad_HF'), 'post_bad_HF')
+load(fullfile(dataPath, 'post_good_LF'), 'post_good_LF')
+load(fullfile(dataPath, 'post_bad_LF'), 'post_bad_LF')
+load(fullfile(dataPath, 'post_good_SNR'), 'post_good_SNR')
+load(fullfile(dataPath, 'post_bad_SNR'), 'post_bad_SNR')
+load(fullfile(dataPath, 'post_good_SAMP'), 'post_good_SAMP')
+load(fullfile(dataPath, 'post_bad_SAMP'), 'post_bad_SAMP')
+load(fullfile(dataPath, 'post_good_APP'), 'post_good_APP')
+load(fullfile(dataPath, 'post_bad_APP'), 'post_bad_APP')
+load(fullfile(dataPath, 'post_good_FUZ'), 'post_good_FUZ')
+load(fullfile(dataPath, 'post_bad_FUZ'), 'post_bad_FUZ')
 
-%% Prep data and find predictors with highest importance
-clear; close all; clc
-mainDir = 'C:\Users\Tracy\Documents\MATLAB\muse_checksignal';
-outDir = fullfile(mainDir, 'outputs', 'muse_2016');
-cd(outDir)
-
-% Prepare data for classification trainer
-rms = [front_good_RMS; front_bad_RMS];
+% Prep data in table format
+sigrms = [front_good_RMS; front_bad_RMS];
 peakrms = [front_good_peak2RMS; front_bad_peak2RMS];
-skewness = [front_good_SKEW; front_bad_SKEW];
+sigskewness = [front_good_SKEW; front_bad_SKEW];
 hf = [front_good_HF; front_bad_HF];
 lf = [front_good_LF; front_bad_LF];
 snr = [front_good_SNR; front_bad_SNR];
 sampEn = [front_good_SAMP; front_bad_SAMP];
 appEn = [front_good_APP; front_bad_APP];
 fuzzEn = [front_good_FUZ; front_bad_FUZ];
-labels(1:length(front_good_RMS),:) = categorical({'G'});
-labels(length(labels)+1:length(rms),:) = categorical({'B'});
-features_front = table(labels, lf, rms, peakrms, skewness, hf, snr, sampEn, appEn, fuzzEn);
-% features_front = readtable(fullfile(outDir, 'features_front.csv'));
+labels(1:length(post_good_RMS),:) = 1;          % good = 1
+labels(length(labels)+1:length(sigrms),:) = 2;     % bad = 2
+features_front = table(labels, lf, sigrms, peakrms, sigskewness, hf, snr, sampEn, appEn, fuzzEn);
+writetable(features_front, fullfile(dataPath, 'features_front.csv'))
+
+sigrms = [post_good_RMS; post_bad_RMS];
+peakrms = [post_good_peak2RMS; post_bad_peak2RMS];
+sigskewness = [post_good_SKEW; post_bad_SKEW];
+hf = [post_good_HF; post_bad_HF];
+lf = [post_good_LF; post_bad_LF];
+snr = [post_good_SNR; post_bad_SNR];
+sampEn = [post_good_SAMP; post_bad_SAMP];
+appEn = [post_good_APP; post_bad_APP];
+fuzzEn = [post_good_FUZ; post_bad_FUZ];
+labels(1:length(post_good_RMS),:) = 1;          % good = 1
+labels(length(labels)+1:length(sigrms),:) = 2;     % bad = 2
+features_post = table(labels, lf, sigrms, peakrms, sigskewness, hf, snr, sampEn, appEn, fuzzEn);
+writetable(features_post, fullfile(dataPath, 'features_post.csv'))
+
+%% Find predictors with highest importance using Random Forest
 
 % Train Bagged Ensemble of 200 regression trees to estimate predictor importance
 % use all predictors at each node
-% use interactions test to select split predictors
+% use interaction-curvature test to select split predictors ('allsplits',
+%       'curvature', 'interaction-curvature')
 % use surrogate splits to increase accuracy (when dataset includes missing values)
 t = templateTree('NumVariablesToSample','all','PredictorSelection','interaction-curvature','Surrogate','on');
-y(strcmp(features_front{:,1},'G'),:) = 1;
-Mdl = fitrensemble(features_front(:,2:end),y,'Method','Bag','NumLearningCycles',200,'Learners',t);
+Mdl = fitrensemble(features_front(:,2:end),labels,'Method','Bag','NumLearningCycles',200,'Learners',t);
 yHat = oobPredict(Mdl);
 R2 = corr(Mdl.Y,yHat)^2;  %Mdl explains 82.7% of the variability around the mean
 fprintf('Model R2 = %g \n', round(R2,2))
@@ -124,11 +138,13 @@ h.YTickLabel = Mdl.PredictorNames;
 % Input the strongest association here (yellow or green), if < .7 association
 % is not high enough to indicate stron relationship between the 2
 % predictors
-predAssociation(2,1)  % row,column
+predAssociation(1,2)  % row,column
+predAssociation(1,7)  % row,column
+predAssociation(1,8)  % row,column
 
 % Run Random Forest again using selected predictors and caompare R2
 t = templateTree('PredictorSelection','interaction-curvature','Surrogate','on'); % For reproducibility of random predictor selections
-MdlReduced  = fitrensemble(features_front(:,{'lf' 'snr'}), y,'Method','Bag','NumLearningCycles',200,'Learners',t);
+MdlReduced  = fitrensemble(features_front(:,{'lf' 'snr'}), labels,'Method','Bag','NumLearningCycles',200,'Learners',t);
 yHatReduced = oobPredict(MdlReduced);
 r2Reduced = corr(Mdl.Y,yHatReduced)^2;
 fprintf('Model R2 = %g \n', round(R2,2))
@@ -136,19 +152,6 @@ fprintf('Reduced Model R2 = %g \n', round(r2Reduced,2))
 
 % SAVE TABLE WITH BEST PREDICTORS
 features_front = features_front(:,{'labels' 'lf' 'snr'}); close(gcf);
-writetable(features_front, fullfile(outDir, 'features_front.csv'))
-
-%% Take first and last 50 observations for validation predictions and keep
-% the rest for traning (i.e. 308).
-
-% features_front = readtable(fullfile(outDir, 'features_front.csv'));
-
-nVals = 50;
-validationSetFront = features_front(1:nVals,:);
-validationSetFront(nVals+1:nVals*2,:) = features_front(end-nVals+1:end,:);
-summary(categorical(features_front.labels))
-features_front(1:nVals,:) = [];
-features_front(end-nVals+1:end,:) = [];
 
 % Launch APPS > Classification learner > All
 % Save best as compact model as trainedModelFront
@@ -156,26 +159,24 @@ features_front(end-nVals+1:end,:) = [];
 % Save summary and plots 
 % Exit and save session
 
-%% Prep data and find predictors with highest importance
+%% Take first and last 50 observations for validation predictions and keep
+% the rest for traning (i.e. 308). Requires large dataset. 
 
-% Prepare data for classification trainer
-rms = [post_good_RMS; post_bad_RMS];
-peakrms = [post_good_peak2RMS; post_bad_peak2RMS];
-skewness = [post_good_SKEW; post_bad_SKEW];
-hf = [post_good_HF; post_bad_HF];
-lf = [post_good_LF; post_bad_LF];
-snr = [post_good_SNR; post_bad_SNR];
-sampEn = [post_good_SAMP; post_bad_SAMP];
-appEn = [post_good_APP; post_bad_APP];
-fuzzEn = [post_good_FUZ; post_bad_FUZ];
-labels(1:length(post_good_RMS),:) = categorical({'G'});
-labels(length(labels)+1:length(rms),:) = categorical({'B'});
-features_post = table(labels, lf, rms, peakrms, skewness, hf, snr, sampEn, appEn, fuzzEn);
+% features_front = readtable(fullfile(dataPath, 'features_front.csv'));
+nVals = 50;
+validationSetFront = features_front(1:nVals,:);
+validationSetFront(nVals+1:nVals*2,:) = features_front(end-nVals+1:end,:);
+summary(categorical(features_front.labels))
+features_front(1:nVals,:) = [];
+features_front(end-nVals+1:end,:) = [];
+
+testLabels = trainedModelFront.predictFcn(validationSetFront);
+
+%% Find predictors with highest importance (POSTERIOR)
 
 % Train Bagged Ensemble of regression trees to estimate predictor importance
 t = templateTree('NumVariablesToSample','all','PredictorSelection','interaction-curvature','Surrogate','on');
-y(strcmp(features_post{:,1},'G'),:) = 1;
-Mdl = fitrensemble(features_post(:,2:end),y,'Method','Bag','NumLearningCycles',200,'Learners',t);
+Mdl = fitrensemble(features_post(:,2:end),labels,'Method','Bag','NumLearningCycles',200,'Learners',t);
 yHat = oobPredict(Mdl);
 R2 = corr(Mdl.Y,yHat)^2;  %Mdl explains 82.7% of the variability around the mean
 fprintf('Model R2 = %g \n', round(R2,2))
@@ -205,25 +206,22 @@ h.XTickLabelRotation = 45; h.TickLabelInterpreter = 'none';
 h.YTickLabel = Mdl.PredictorNames;
 
 % strongest association
-predAssociation(7,8)  % row,column
+predAssociation(2,1)  % row,column
+predAssociation(3,4)  % row,column
 
 % Run Random Forest again using selected predictors and caompare R2
 t = templateTree('PredictorSelection','interaction-curvature','Surrogate','on'); % For reproducibility of random predictor selections
-MdlReduced  = fitrensemble(features_post(:,{'lf' 'snr'}), ...
-    y,'Method','Bag','NumLearningCycles',200,'Learners',t);
+MdlReduced  = fitrensemble(features_post(:,{'rms' 'snr' 'peakrms'}), labels,'Method','Bag','NumLearningCycles',200,'Learners',t);
 yHatReduced = oobPredict(MdlReduced);
 r2Reduced = corr(Mdl.Y,yHatReduced)^2;
 fprintf('Model R2 = %g \n', round(R2,2))
 fprintf('Reduced Model R2 = %g \n', round(r2Reduced,2))
 
 % SAVE TABLE WITH BEST PREDICTORS
-features_post = features_post(:,{'labels' 'lf' 'snr'}); close(gcf);
-writetable(features_post, fullfile(outDir, 'features_post.csv'))
+features_post = features_post(:,{'labels' 'rms' 'snr' 'peakrms'}); close(gcf);
 
 %% Take first and last 50 observations for validation predictions and keep
-% the rest for traning (i.e. 308).
-
-% features_post = readtable(fullfile(outDir, 'features_post.csv'));
+% the rest for traning (i.e. 308). Requires large sample.
 
 nVals = 50;
 validationSetPost = features_post(1:nVals,:);

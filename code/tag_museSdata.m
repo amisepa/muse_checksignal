@@ -14,32 +14,31 @@ filenames = { filenames.name }';
 filenames(~contains(filenames,'eeg'),:) = [];
 
 % Initialize outputs (only 1st time)
-signals_post = cell.empty;
-signals_front = cell.empty;
-labels_post = categorical.empty;
-labels_front = categorical.empty;
-front_good = [];
-front_bad = [];
-post_good = [];
-post_bad = [];
-sInfo = [];
+% signals_post = cell.empty;
+% signals_front = cell.empty;
+% labels_post = categorical.empty;
+% labels_front = categorical.empty;
+% front_good = [];
+% front_bad = [];
+% post_good = [];
+% post_bad = [];
+% sInfo = [];
 
-% load(fullfile(outDir, "sInfo.mat"));
-% load(fullfile(outDir, "front_good.mat"));
-% load(fullfile(outDir, "front_bad.mat"));
-% load(fullfile(outDir, "post_good.mat"));
-% load(fullfile(outDir, "post_bad.mat"));
+load(fullfile(outDir,'labeled_data.mat'))
+load(fullfile(outDir,'labels.mat'))
+load(fullfile(outDir, 'labeled_data_merged.mat'));
+load(fullfile(outDir, 'sInfo.mat'),'sInfo');
 
 %% Launch this at the end of each file
 
-% for eegplot
+% For eegplot
 mycommand = '[tmpgood, com] = eeg_eegrej(EEG,eegplot2event(TMPREJ,-1));';
 
 % File to tag
-iFile = length(sInfo) + 1;
-if iFile == floor(length(filenames)/2)
+if iFile == floor(length(filenames)/2) + 1
     error('You did half the files. Done with labeling data.')
 end
+iFile = length(sInfo) + 1;
 disp('---------------------------------------------------------------')
 fprintf('File %d \n', iFile)
 
@@ -82,6 +81,10 @@ for iChan = 1:2%EEG.nbchan
             badData = badData{:};
         else
             badData = [];
+        end
+        % if remaining data is < 3 s, all data are bad
+        if tmpeeg.pnts - (badData(2)-badData(1)) < 768
+            badData = [1 tmpeeg.pnts];
         end
         field = sprintf('channel%g_badData',iChan);
         sInfo(iFile).(field) = badData;
